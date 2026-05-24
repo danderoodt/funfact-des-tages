@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funfact des Tages</title>
+<style>
+  :root {
+    --bg: #0f0f1a;
+    --card: #1a1a2e;
+    --accent: #e94560;
+    --text: #eaeaea;
+    --muted: #888;
+    --border: #2a2a4a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+  }
+  header {
+    text-align: center;
+    padding: 24px 0 8px;
+  }
+  header h1 {
+    font-size: 1.8rem;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 4px;
+  }
+  .date-section {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  input[type=date] {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 1rem;
+    min-width: 160px;
+  }
+  button {
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.2s;
+  }
+  button:hover { opacity: 0.85; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-secondary {
+    background: var(--border);
+    color: var(--text);
+  }
+  .rules {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    font-size: 0.85rem;
+  }
+  .rules h3 {
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+  .rules .yes { color: #4caf50; }
+  .rules .no  { color: #f44336; }
+  .facts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 10px;
+  }
+  .fact-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    padding: 16px;
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+  .fact-num {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: bold;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .fact-text {
+    line-height: 1.6;
+    font-size: 0.97rem;
+  }
+  .fact-source {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .fact-source a { color: var(--accent); }
+  .copy-btn {
+    margin-top: 10px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    background: var(--border);
+    border-radius: 8px;
+  }
+  .placeholder {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px 20px;
+    font-size: 0.95rem;
+  }
+  .placeholder span {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 10px;
+  }
+  .prompt-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-top: 20px;
+  }
+  .prompt-box h3 {
+    color: var(--accent);
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+  .prompt-text {
+    font-size: 0.82rem;
+    color: var(--muted);
+    white-space: pre-wrap;
+    line-height: 1.5;
+    background: var(--bg);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4caf50;
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>&#128161; Funfact des Tages</h1>
+  <p>10 kuriose Fakten fuer ein Datum deiner Wahl</p>
+</header>
+
+<div class="rules">
+  <h3>Kurator-Regeln</h3>
+  <div class="yes">&#10003; Ueberraschend, kuriosm witzig, kaum glaublich</div>
+  <div class="yes">&#10003; Unbekannter Hintergrund eines bekannten Ereignisses</div>
+  <div class="no">&#10007; Kriege, Schlachten, Massaker, Gewalt, Katastrophen</div>
+  <div class="no">&#10007; Trockene Fakten ohne ueberraschendes Detail</div>
+</div>
+
+<div class="date-section">
+  <input type="date" id="datePicker">
+  <button id="generateBtn" onclick="generatePrompt()">&#128269; Generieren</button>
+  <button class="btn-secondary" onclick="copyPrompt()">&#128203; Prompt kopieren</button>
+</div>
+
+<div id="factsContainer">
+  <div class="placeholder">
+    <span>&#128197;</span>
+    Waehl ein Datum und druecke "Generieren"<br>
+    um den Kurator-Prompt zu erstellen.
+  </div>
+</div>
+
+<div id="promptSection" class="prompt-box" style="display:none">
+  <h3>&#129302; Kurator-Prompt (fuer KI)</h3>
+  <div class="prompt-text" id="promptOutput"></div>
+</div>
+
+<div class="toast" id="toast">Kopiert!</div>
+
+<script>
+  // Datum heute vorbelegen
+  const dp = document.getElementById('datePicker');
+  const today = new Date();
+  dp.value = today.toISOString().split('T')[0];
+
+  function formatDate(dateStr) {
+    const d = new Date(dateStr + 'T12:00:00');
+    return d.toLocaleDateString('de-DE', { day:'2-digit', month:'long' });
+  }
+
+  function getYear(dateStr) {
+    return parseInt(dateStr.split('-')[0]);
+  }
+
+  function generatePrompt() {
+    const dateStr = dp.value;
+    if (!dateStr) { alert('Bitte ein Datum waehlen!'); return; }
+
+    const d = new Date(dateStr + 'T12:00:00');
+    const tag = d.getDate();
+    const monat = d.toLocaleDateString('de-DE', { month: 'long' });
+    const jahr = d.getFullYear();
+    const currentYear = 2026;
+
+    const prompt = `Du bist ein Funfact-Kurator. Liefere genau 10 historische Funfacts fuer den ${tag}. ${monat}.
+
+REGELN:
+- Ja: Ueberraschend, kuriosg, witzig, kaum glaublich, unbekannter Hintergrund
+- Nein: Kriege, Schlachten, Massaker, Anschlaege, Katastrophen, Gewalttaten
+- Keine einleitenden Saetze. Direkt mit "1." beginnen.
+- Berechne das Alter korrekt: ${currentYear} minus Ereignisjahr
+
+FORMAT:
+"Vor genau X Jahren (YYYY): [Das ueberraschende Detail. 2-3 Saetze.] (Quelle: URL)"
+
+Suche mit: "fun facts ${monat} ${tag} history" oder "bizarre historical events ${tag} ${monat}"`;
+
+    document.getElementById('promptOutput').textContent = prompt;
+    document.getElementById('promptSection').style.display = 'block';
+
+    // Beispiel-Fakten anzeigen (Demo)
+    const demo = [
+      { year: currentYear - 50, text: `Vor genau ${currentYear - (currentYear-50)} Jahren (${currentYear-50}): [Hier erscheint nach KI-Ausfuellung ein kurioser Fakt fuer den ${tag}. ${monat}.]` },
+    ];
+
+    let html = '<div class="facts-list">';
+    html += `<div class="fact-card"><div class="fact-num">&#128161; Prompt generiert fuer ${tag}. ${monat}</div>`;
+    html += `<div class="fact-text">Der Kurator-Prompt wurde erstellt. Kopiere ihn und fuehre ihn in einer KI (z.B. Perplexity, ChatGPT) aus, um 10 echte Funfacts fuer den <strong>${tag}. ${monat}</strong> zu erhalten.</div></div>`;
+    html += '</div>';
+    document.getElementById('factsContainer').innerHTML = html;
+  }
+
+  function copyPrompt() {
+    const text = document.getElementById('promptOutput').textContent;
+    if (!text) { alert('Zuerst ein Datum waehlen und generieren!'); return; }
+    navigator.clipboard.writeText(text).then(() => showToast('Prompt kopiert!'));
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+
+</body>
+</html>
